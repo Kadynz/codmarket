@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Passo a passo do AutoMarket: códigos completos para automatizar o mercado, aplicar promoções e concluir três entregas.">
+  <title>AutoMarket — Guia para completar o jogo</title>
+  <link rel="stylesheet" href="guia.css">
+  <script src="guia.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+  <header class="brand"><span aria-hidden="true"></span>AutoMarket</header>
+  <div class="layout">
+    <aside>
+      <nav aria-label="Etapas do guia">
+        <h2>Seu roteiro</h2>
+        <a href="#preparar"><span>01</span>Preparar a partida</a>
+        <a href="#mercado"><span>02</span>Automatizar o mercado</a>
+        <a href="#troco"><span>03</span>Liberar o troco</a>
+        <a href="#promocoes"><span>04</span>Aplicar promoções</a>
+        <a href="#delivery"><span>05</span>Automatizar o delivery</a>
+        <a href="#conclusao"><span>06</span>Conferir a conclusão</a>
+      </nav>
+      <p class="aside-note">Python-like <span aria-hidden="true">·</span> Sem instalações</p>
+    </aside>
+    <main id="conteudo" tabindex="-1">
+      <div class="page-heading"><p>Guia para completar o jogo</p><span>Baseado no código atual</span></div>
+      <div class="intro">
+        <h1>Da primeira venda<br>à última entrega.</h1>
+        <p>Copie os scripts, siga a ordem dos upgrades e complete todos os objetivos disponíveis.</p>
+        <div class="notice"><strong>Sobre zerar:</strong> o final legado está desativado. A meta atual é automatizar o mercado e concluir três entregas.</div>
+      </div>
+
+      <section id="preparar" aria-labelledby="titulo-preparar">
+        <h2 id="titulo-preparar" tabindex="-1"><span>01</span> Preparar a partida</h2>
+        <p class="lead">Abra a IDE e prepare seu primeiro arquivo.</p>
+        <ol class="steps">
+          <li>Comece uma nova partida.</li>
+          <li>Abra o arquivo <strong>Principal</strong>.</li>
+          <li>Substitua o <code>Hello, World!</code> pelo código da próxima etapa.</li>
+        </ol>
+        <details><summary>Já tenho uma partida em andamento</summary><p>Você pode continuar no seu save. Pare os scripts antigos antes de substituir o código e mantenha apenas um script atendendo o caixa. O código do mercado abaixo atende também aos upgrades já comprados. Não apague seu progresso.</p></details>
+        <div class="actions"><a class="button" href="#mercado">Próxima etapa <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section id="mercado" aria-labelledby="titulo-mercado">
+        <h2 id="titulo-mercado" tabindex="-1"><span>02</span> Automatizar o mercado</h2>
+        <p class="lead">Um único script cuida do caixa, do estoque e dos próximos upgrades.</p>
+        <ol class="steps">
+          <li>Copie todo o código abaixo para <strong>Principal</strong>, preservando a indentação.</li>
+          <li>Clique em <strong>Rodar</strong>. Deixe somente esse arquivo atendendo clientes.</li>
+          <li>Avance os diálogos dos clientes até fechar o resultado de cada venda. A recompensa e o registro da venda chegam no fechamento.</li>
+        </ol>
+        <div class="code-head"><span>Principal · Python-like</span><button type="button" data-copy="codigo-mercado" hidden>Copiar código</button></div>
+        <pre><code id="codigo-mercado">produtos = tabela_produtos()
+while True:
+    if sensor(&quot;cliente_na_tela&quot;):
+        pedido = input()
+        regras = promocoes()
+        total = 0
+        for codigo in pedido[&quot;carrinho&quot;]:
+            quantidade = pedido[&quot;carrinho&quot;][codigo]
+            preco = produtos[codigo][&quot;preco&quot;]
+            subtotal = quantidade * preco
+            for regra in regras:
+                if regra[&quot;produto&quot;] == codigo:
+                    if regra[&quot;tipo&quot;] == &quot;leve_pague&quot;:
+                        pagas = (quantidade // regra[&quot;leve&quot;]) * regra[&quot;pague&quot;] + quantidade % regra[&quot;leve&quot;]
+                        subtotal = pagas * preco
+                    elif regra[&quot;tipo&quot;] == &quot;percentual&quot;:
+                        subtotal = subtotal * (1 - regra[&quot;desconto&quot;])
+            total = total + subtotal
+        total = ((total * 100 + 0.5) // 1) / 100
+        if &quot;pagamento&quot; in pedido:
+            troco = ((pedido[&quot;pagamento&quot;] - total) * 100 + 0.5) // 1 / 100
+            send(total, troco)
+        else:
+            send(total)
+    estoque = get_stock()
+    for codigo in produtos:
+        produto = produtos[codigo]
+        lote = produto[&quot;lote&quot;]
+        if estoque[codigo] &lt; produto[&quot;minimo&quot;]:
+            if estoque[codigo] + lote &lt;= produto[&quot;capacidade&quot;]:
+                if lote * produto[&quot;custo&quot;] &lt;= get_budget():
+                    resultado = buy_stock({codigo: lote})
+                    if not resultado[&quot;ok&quot;]:
+                        print(resultado[&quot;mensagem&quot;])
+    wait(0.2)
+</code></pre>
+        <p class="caption">Versão integral: <a href="docs/examples/market_complete.py" download>baixar script do mercado</a>. O código funciona na linguagem do jogo; não precisa instalar Python.</p>
+        <h3>Quando esta etapa está pronta?</h3>
+        <p>Aguarde a mensagem <strong>“Desafio Mercado Automatizado concluído!”</strong>. Ela exige três vendas válidas com uma automação ativa, uma compra por script e a recuperação real de um produto que caiu abaixo do mínimo após uma venda. Pode levar mais de três clientes até todos os requisitos acontecerem.</p>
+        <div class="notice"><strong>Não compre tudo no início.</strong> Uma partida nova começa com R$180 e cinco unidades de cada produto. O script só compra um lote quando o estoque cai abaixo do mínimo, verifica espaço e saldo e tenta novamente nos próximos ciclos se faltar dinheiro.</div>
+        <details><summary>Como o script funciona</summary><p><code>sensor()</code> verifica se há cliente; <code>input()</code> lê o pedido uma vez. O script percorre o carrinho, aplica as ofertas do atendimento e envia a resposta. Depois consulta o estoque e repõe um lote dos itens abaixo do mínimo. <code>wait(0.2)</code> evita verificações contínuas sem pausa. Antes dos upgrades, as promoções retornam uma lista vazia e o pedido ainda não contém pagamento.</p><p>O arredondamento usa <code>//</code> porque esta linguagem não oferece <code>round()</code>. O código arredonda valores não negativos para centavos, como os totais e trocos válidos do jogo.</p></details>
+        <div class="sources">Fontes: <a href="systems/ChallengeSystem.gd">metas</a>, <a href="systems/StockSystem.gd">estoque</a>, <a href="interpreter/runtime/godot_automarket_python_bridge.gd">API</a>.</div>
+        <div class="actions"><a href="#preparar">Etapa anterior</a><a class="button" href="#troco">Próxima etapa <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section id="troco" aria-labelledby="titulo-troco">
+        <h2 id="titulo-troco" tabindex="-1"><span>03</span> Liberar o troco</h2>
+        <p class="lead">Junte pelo menos R$250 e compre Troco automático.</p>
+        <ol class="steps">
+          <li>Mantenha o script <strong>Principal</strong> rodando e conclua os atendimentos até o saldo atingir <strong>R$250</strong>.</li>
+          <li>Na loja de upgrades, compre <strong>Troco automático</strong> por <strong>R$120</strong>. O jogo exige R$250 de saldo antes da compra, deixando pelo menos R$130.</li>
+          <li>Continue usando exatamente o código da etapa 02. Ele detecta o campo <code>pagamento</code> e passa a enviar <strong>total e troco, nessa ordem</strong>.</li>
+        </ol>
+        <div class="notice"><strong>Não faça outro input().</strong> O pagamento vem no mesmo dicionário do carrinho. Uma segunda leitura não devolve o pagamento.</div>
+        <h3>Confira com um exemplo</h3>
+        <p>Dois arrozes a R$3 e um feijão a R$4 somam R$10. Com pagamento de R$20, a resposta é <code>send(10, 10)</code>. O script calcula os valores reais de cada cliente.</p>
+        <p>O saldo cresce pelas recompensas dos atendimentos e cai com reposições. Não existe um número fixo de clientes para chegar ao próximo upgrade.</p>
+        <div class="sources">Fontes: <a href="data/UpgradeData.gd">preço e reserva</a>, <a href="systems/ChallengeSystem.gd">formato do pedido</a>, <a href="data/ProductCatalog.gd">preços dos produtos</a>.</div>
+        <div class="actions"><a href="#mercado">Ver código completo</a><a class="button" href="#promocoes">Próxima etapa <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section id="promocoes" aria-labelledby="titulo-promocoes">
+        <h2 id="titulo-promocoes" tabindex="-1"><span>04</span> Aplicar promoções</h2>
+        <p class="lead">Junte pelo menos R$300 e compre Sistema de promoções.</p>
+        <ol class="steps">
+          <li>Depois de comprar o troco, continue atendendo até ter <strong>R$300</strong>.</li>
+          <li>Compre <strong>Sistema de promoções</strong> por <strong>R$160</strong>. A reserva mínima deixa pelo menos R$140 após a compra.</li>
+          <li>Mantenha o mesmo script da etapa 02. Ele consulta <code>promocoes()</code> a cada atendimento e trata todos os produtos e os dois tipos de oferta.</li>
+        </ol>
+        <div class="table-wrap"><table><caption>Regras que o código já resolve</caption><thead><tr><th>Oferta</th><th>Cálculo</th><th>Exemplo</th></tr></thead><tbody><tr><td>Leve X, pague Y</td><td>Grupos completos pagam Y; as sobras pagam preço normal.</td><td>7 morangos, leve 3 pague 2: paga 5 unidades, R$25.</td></tr><tr><td>Percentual</td><td>Quantidade × preço × (1 − desconto).</td><td>3 feijões, 40% de desconto: R$7,20.</td></tr></tbody></table></div>
+        <div class="notice"><strong>As ofertas mudam entre clientes.</strong> Podem existir uma ou duas regras, sempre para produtos diferentes. Não aplique um desconto geral de 10%: essa regra é de conteúdo legado. O estoque perde todas as unidades levadas, inclusive as gratuitas.</div>
+        <h3>Como reconhecer que está funcionando</h3><p>Os clientes aceitam o total promocional e o troco. No exemplo de sete morangos com leve 3 pague 2, mais dois arrozes, o total é R$31; para R$50 de pagamento, o troco é R$19.</p>
+        <div class="sources">Fontes: <a href="data/PromotionCatalog.gd">regras e cálculo</a>, <a href="data/UpgradeData.gd">upgrade</a>.</div>
+        <div class="actions"><a href="#troco">Etapa anterior</a><a class="button" href="#delivery">Próxima etapa <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section id="delivery" aria-labelledby="titulo-delivery">
+        <h2 id="titulo-delivery" tabindex="-1"><span>05</span> Automatizar o delivery</h2>
+        <p class="lead">Desbloqueie o bairro e deixe a busca encontrar a rota de cada entrega.</p>
+        <ol class="steps">
+          <li>Após comprar Sistema de promoções, junte <strong>R$370</strong> e compre <strong>Delivery Online</strong>. Prefira esperar até <strong>R$505 ou mais</strong>: sobram R$135, suficientes para um lote de cada produto. Essa reserva é uma recomendação do guia, não uma exigência do upgrade.</li>
+          <li>Abra o arquivo <strong>Delivery</strong> criado pelo jogo e substitua todo o exemplo pelo código abaixo. Mantenha <strong>Principal</strong> com o código do mercado.</li>
+          <li>Use <strong>Rodar todos</strong> para manter mercado e delivery ativos. Não crie outro script de caixa ou outro script de entregas.</li>
+          <li>Acompanhe o mapa até <strong>três chegadas concluídas</strong>. A rota aceita inicia a viagem; o prêmio vem somente na chegada.</li>
+        </ol>
+        <div class="code-head"><span>Delivery · Python-like · BFS</span><button type="button" data-copy="codigo-delivery" hidden>Copiar código</button></div>
+        <pre><code id="codigo-delivery">def buscar(mapa, entrega):
+    origem = entrega[&quot;origem&quot;]
+    destino = entrega[&quot;destino&quot;]
+    largura = len(mapa[0])
+    fila = [origem]
+    inicio = 0
+    pais = {}
+    mapa[origem[0]][origem[1]] = 0
+    achou = False
+    while inicio &lt; len(fila) and not achou:
+        atual = fila[inicio]
+        inicio = inicio + 1
+        if atual[0] == destino[0] and atual[1] == destino[1]:
+            achou = True
+        else:
+            for passo in [[-1, 0], [1, 0], [0, -1], [0, 1]]:
+                linha = atual[0] + passo[0]
+                coluna = atual[1] + passo[1]
+                if linha &gt;= 0 and linha &lt; len(mapa) and coluna &gt;= 0 and coluna &lt; largura:
+                    if mapa[linha][coluna] == 1:
+                        proxima = [linha, coluna]
+                        pais[linha * largura + coluna] = atual
+                        fila.append(proxima)
+                        mapa[linha][coluna] = 0
+    rota = []
+    if achou:
+        atual = destino
+        while atual[0] != origem[0] or atual[1] != origem[1]:
+            rota = [atual] + rota
+            atual = pais[atual[0] * largura + atual[1]]
+        rota = [origem] + rota
+    return rota
+
+while True:
+    entrega = entrega_atual()
+    if entrega:
+        mapa = mapa_entrega()
+        rota = buscar(mapa, entrega)
+        enviar_rota(rota)
+    wait(1)
+</code></pre>
+        <p class="caption">Exemplo já existente no projeto: <a href="docs/examples/delivery_bfs.py" download>baixar script de delivery</a>.</p>
+        <h3>Por que funciona em mapas diferentes?</h3><p>A busca em largura (BFS) visita as ruas livres, guarda de onde chegou a cada posição e reconstrói o caminho até o destino. O script inclui origem e destino, avança uma célula por vez e não repete posições. As coordenadas seguem <code>[linha, coluna]</code>; <code>1</code> é rua, <code>0</code> é terreno e <code>2</code> é bloqueio.</p>
+        <div class="notice"><strong>Cada chegada rende R$40.</strong> O próximo pedido aparece após 15 segundos de tempo ativo, além do tempo da viagem. Não há ganhos offline. As três entregas rendem R$120 no total, sem contar os ganhos e gastos do mercado.</div>
+        <details><summary>O delivery está parado</summary><p>Confira a compra do upgrade e o estado do arquivo Delivery na IDE. Durante a viagem e o intervalo entre pedidos, <code>entrega_atual()</code> não retorna um pedido; o script espera normalmente. Não use <code>input()</code> ou <code>send()</code> para navegar. Os comandos antigos <code>get_deliveries()</code> e <code>declare_profit()</code> foram aposentados.</p></details>
+        <div class="sources">Fontes: <a href="docs/delivery-navigation.md">documentação do delivery</a>, <a href="data/DeliveryConfig.gd">valores e intervalo</a>, <a href="systems/DeliverySystem.gd">execução das viagens</a>.</div>
+        <div class="actions"><a href="#promocoes">Etapa anterior</a><a class="button" href="#conclusao">Próxima etapa <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section id="conclusao" aria-labelledby="titulo-conclusao">
+        <h2 id="titulo-conclusao" tabindex="-1"><span>06</span> Conferir a conclusão</h2>
+        <p class="lead">Você completou o conteúdo ativo quando estes objetivos acontecerem no jogo.</p>
+        <ul class="checklist">
+          <li>Recebeu “Desafio Mercado Automatizado concluído!”.</li>
+          <li>Comprou Troco automático e Sistema de promoções, com atendimentos corretos.</li>
+          <li>Comprou Delivery Online e concluiu três entregas.</li>
+          <li>Recebeu “Desafio Delivery concluído: três entregas válidas! A automação pode continuar.”.</li>
+        </ul>
+        <div class="notice"><strong>Não há botão final ativo nesta versão.</strong> <code>ActiveExperience.gd</code> desativa o fluxo de conclusão e só habilita três upgrades. O “Zerar” de cinco diamantes permanece no catálogo legado, mas está fora da experiência ativa. As entregas atuais dão dinheiro, não diamantes.</div>
+        <h3>Depois da última entrega</h3><p>A automação pode continuar. Este guia não altera o save, não libera menus secretos e não força a flag interna de jogo concluído. Ele cobre os objetivos que o código atual oferece ao jogador.</p>
+        <details><summary>O mercado parou de receber clientes</summary><p>Confira o estoque e o saldo. O jogo só gera pedidos de produtos disponíveis. O script tenta repor itens abaixo do mínimo quando há dinheiro para um lote. Se você gastou a reserva nos upgrades e o caixa ficou baixo, mantenha o delivery rodando para receber R$40 por chegada e financiar novas reposições. Antes do delivery, preserve o saldo para lotes e adie upgrades se necessário.</p></details>
+        <details><summary>O código apresenta erro ou os clientes recusam</summary><p>Copie o bloco inteiro com os espaços de indentação. Use a linguagem Python-like do jogo. Pare scripts antigos: duas automações lendo <code>input()</code> disputam o mesmo pedido. Leia o erro no terminal e compare o arquivo com o código integral da etapa 02 ou 05.</p></details>
+        <div class="sources">Fontes: <a href="data/ActiveExperience.gd">experiência ativa</a>, <a href="autoload/UpgradeManager.gd">restrições de compra</a>, <a href="systems/ChallengeSystem.gd">condições de conclusão</a>.</div>
+        <div class="actions"><a href="#delivery">Etapa anterior</a><a class="button" href="#preparar">Voltar ao início <span aria-hidden="true">↑</span></a></div>
+      </section>
+
+      <p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
+      <footer><strong>Fontes no projeto</strong><div><a href="README.md">README</a><a href="data/ActiveExperience.gd">Experiência ativa</a><a href="data/UpgradeData.gd">Upgrades</a></div></footer>
+      <noscript><p>JavaScript está desativado: todas as etapas estão visíveis. Selecione os blocos de código para copiar.</p></noscript>
+    </main>
+  </div>
+</body>
+</html>
