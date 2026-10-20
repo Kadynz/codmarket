@@ -22,6 +22,7 @@ window.addEventListener('hashchange', () => showStep(true));
 showStep();
 
 document.querySelectorAll('[data-copy]').forEach(button => {
+  const label = button.textContent;
   button.hidden = false;
   button.addEventListener('click', async () => {
     const code = document.getElementById(button.dataset.copy);
@@ -29,7 +30,7 @@ document.querySelectorAll('[data-copy]').forEach(button => {
       await navigator.clipboard.writeText(code.textContent);
       status.textContent = 'Código copiado. Cole no arquivo indicado dentro do jogo.';
       button.textContent = 'Copiado!';
-      setTimeout(() => { button.textContent = 'Copiar código'; }, 2000);
+      setTimeout(() => { button.textContent = label; }, 2000);
     } catch {
       const range = document.createRange();
       range.selectNodeContents(code);
